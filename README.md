@@ -2,7 +2,7 @@
 
 Mint animated NFTs on [TON](https://ton.org/) for gas-only cost — in the style of Telegram Gifts (Clover Pin, Snoop Cigar, Instant Ramen). No platform fee, no minting service: users pay ~0.1 TON once to deploy their own TEP-62 collection contract, then ~0.055 TON per NFT (mostly refunded by the chain as unused storage reserve).
 
-This repo is the full source — deploy your own instance with the steps below.
+**Live demo:** https://ton-pixel-forge.amnhira.workers.dev *(testnet)*
 
 ## Features
 
@@ -47,11 +47,24 @@ wrangler deploy
 
 The worker serves the app files, `/tonconnect-manifest.json`, `/meta/<collId>/...` metadata and `/meta/<collId>/<n>.gif` images, and accepts `POST /mint` uploads from the app.
 
-### 2. App configuration
+### 2. Populate KV assets
+
+The worker serves the app itself from KV, so upload the assets once:
+
+```bash
+export CLOUDFLARE_API_TOKEN=...   # token with Workers KV edit permission
+export CF_ACCOUNT_ID=...
+export CF_NAMESPACE_ID=...        # the FORGE_KV namespace id from wrangler.toml
+python3 scripts/populate_kv.py
+```
+
+`icon.png` (256×256, shown by wallets in the TON Connect screen) and `mock.jpg` (square image used by the AI Studio demo preset) are optional runtime assets — provide your own or skip them; the script skips missing files.
+
+### 3. App configuration
 
 `app.js` reads its base URL from the `__WORKER_BASE__` placeholder, which the worker replaces with the request origin at serve time — so the same files work on any deployment with no edits. If you host the static files elsewhere (GitHub Pages etc.), replace `__WORKER_BASE__` with your worker URL.
 
-### 3. Network
+### 4. Network
 
 The app targets **TON testnet** by default (`NETWORK = 'testnet'` in `app.js`). To go mainnet:
 
