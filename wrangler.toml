@@ -1,0 +1,14 @@
+name = "ton-pixel-forge"
+main = "worker/worker.js"
+compatibility_date = "2024-09-01"
+
+# Create with: wrangler kv namespace create FORGE_KV
+# then paste the id here.
+kv_namespaces = [
+  { binding = "FORGE_KV", id = "REPLACE_WITH_YOUR_NAMESPACE_ID" }
+]
+
+# Optional: serve on your own domain instead of workers.dev
+# routes = [
+#   { pattern = "forge.example.com", custom_domain = true }
+# ]
