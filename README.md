@@ -2,7 +2,7 @@
 
 Mint animated NFTs on [TON](https://ton.org/) for gas-only cost — in the style of Telegram Gifts (Clover Pin, Snoop Cigar, Instant Ramen). No platform fee, no minting service: users pay ~0.1 TON once to deploy their own TEP-62 collection contract, then ~0.055 TON per NFT (mostly refunded by the chain as unused storage reserve).
 
-**Live demo:** https://ton-pixel-forge.amnhira.workers.dev *(testnet)*
+This repo is the full source — deploy your own instance with the steps below.
 
 ## Features
 
@@ -24,7 +24,7 @@ Mint animated NFTs on [TON](https://ton.org/) for gas-only cost — in the style
 ## Repo layout
 
 ```
-├── index.html        # app shell (Forge / Collection / AI Studio / Guide tab)
+├── index.html        # app shell (Forge / Collection / AI Studio / Guide tabs)
 ├── styles.css        # retro-terminal dark theme
 ├── app.js            # UI logic, TEP-62 cell builders, TON Connect mint flow, AI Studio
 ├── art.js            # generative art engine + GIF encoder (browser + Node dual export)
