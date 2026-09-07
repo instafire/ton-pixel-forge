@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TON Pixel Forge — Mint animated pixel NFTs for pennies</title>
+<script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@2.4.4/dist/tonconnect-ui.min.js"></script>
+<script src="art.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">▚</span>
+    <span class="brand-name">TON PIXEL FORGE</span>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="forge">⚒ Forge</button>
+    <button class="tab" data-tab="collection">▦ Collection</button>
+    <button class="tab" data-tab="ai">✦ AI Studio</button>
+    <button class="tab" data-tab="help">? Guide</button>
+  </nav>
+  <div class="wallet-zone">
+    <span id="network-badge" class="net-badge testnet">TESTNET</span>
+    <div id="ton-connect-button"></div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ FORGE TAB ============ -->
+  <section id="tab-forge" class="tabpane active">
+    <div class="forge-layout">
+      <div class="preview-panel">
+        <div class="art-frame" id="art-frame">
+          <canvas id="preview-canvas" width="512" height="512"></canvas>
+        </div>
+        <div class="art-meta">
+          <div class="art-name" id="art-name">—</div>
+          <div class="art-rarity" id="art-rarity">—</div>
+        </div>
+        <div class="preview-actions">
+          <button id="btn-reroll" class="btn btn-primary">⟳ Reroll</button>
+          <button id="btn-download" class="btn btn-ghost">⬇ GIF</button>
+        </div>
+      </div>
+
+      <div class="traits-panel">
+        <h3 class="panel-title">Traits <span class="hint">— click to lock / reroll</span></h3>
+        <div id="traits-grid" class="traits-grid"></div>
+
+        <h3 class="panel-title">Mint</h3>
+        <div class="mint-box">
+          <div class="mint-row">
+            <label class="mint-label">Collection</label>
+            <select id="mint-collection" class="input">
+              <option value="">— new collection —</option>
+            </select>
+          </div>
+          <div class="mint-row" id="new-collection-fields">
+            <label class="mint-label">Collection name</label>
+            <input id="collection-name" class="input" type="text" maxlength="60" placeholder="Pixel Punks">
+            <label class="mint-label">Collection description</label>
+            <input id="collection-desc" class="input" type="text" maxlength="120" placeholder="Animated pixel art forged on TON">
+          </div>
+          <div class="mint-row">
+            <label class="mint-label">NFT name</label>
+            <input id="nft-name" class="input" type="text" maxlength="60" placeholder="(auto from traits)">
+          </div>
+          <div class="mint-row">
+            <label class="mint-label">Royalty % (on resales, 0–30)</label>
+            <input id="royalty" class="input" type="number" min="0" max="30" step="1" value="5">
+          </div>
+          <div class="cost-row">
+            <div class="cost-item"><span class="cost-num" id="cost-mint">~0.055</span><span class="cost-unit">TON / mint</span></div>
+            <div class="cost-item"><span class="cost-num" id="cost-deploy">~0.1</span><span class="cost-unit">TON one-time collection</span></div>
+          </div>
+          <button id="btn-mint" class="btn btn-mint">⚡ MINT NFT</button>
+          <div id="mint-status" class="mint-status"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COLLECTION TAB ============ -->
+  <section id="tab-collection" class="tabpane">
+    <div class="collection-head">
+      <h2>Collection Studio</h2>
+      <p class="muted">Generate a full set with rarity tiers, then mint pieces one by one or in batches.</p>
+      <div class="collection-controls">
+        <label>Size <input id="gen-size" class="input input-sm" type="number" min="1" max="250" value="24"></label>
+        <label>Seed <input id="gen-seed" class="input input-sm" type="text" placeholder="random"></label>
+        <label>Collection <select id="mint-collection-2" class="input input-sm"><option value="">— new collection —</option></select></label>
+        <button id="btn-generate" class="btn btn-primary">✦ Generate Set</button>
+        <button id="btn-mint-batch" class="btn btn-mint" disabled>⚡ Mint Selected</button>
+      </div>
+      <div id="rarity-stats" class="rarity-stats"></div>
+    </div>
+    <div id="collection-grid" class="collection-grid"></div>
+  </section>
+
+  <!-- ============ AI STUDIO TAB ============ -->
+  <section id="tab-ai" class="tabpane">
+    <div class="ai-layout">
+      <div class="ai-config">
+        <h2>AI Studio</h2>
+        <p class="muted">Bring your own image-generation API to create premium artwork, then animate it into a mint-ready GIF. Your key is stored only in your browser (localStorage) and sent only to the endpoint you configure.</p>
+        <div class="mint-row">
+          <label class="mint-label">Preset</label>
+          <select id="ai-preset" class="input">
+            <option value="mock">Demo — no key needed (sample art)</option>
+            <option value="openai">OpenAI Images (gpt-image-1)</option>
+            <option value="generic">Custom REST endpoint</option>
+          </select>
+        </div>
+        <div class="mint-row">
+          <label class="mint-label">Endpoint URL (POST)</label>
+          <input id="ai-endpoint" class="input" type="text" placeholder="https://api.example.com/v1/images">
+        </div>
+        <div class="mint-row">
+          <label class="mint-label">Auth header name</label>
+          <input id="ai-header-name" class="input" type="text" placeholder="Authorization">
+        </div>
+        <div class="mint-row">
+          <label class="mint-label">Auth header value ({{KEY}} = your key)</label>
+          <input id="ai-header-value" class="input" type="text" placeholder="Bearer {{KEY}}">
+        </div>
+        <div class="mint-row">
+          <label class="mint-label">API key (stored locally only)</label>
+          <input id="ai-key" class="input" type="password" placeholder="sk-...">
+        </div>
+        <div class="mint-row">
+          <label class="mint-label">Request body template (JSON)</label>
+          <textarea id="ai-template" class="input" rows="5" placeholder='{"prompt": "{{PROMPT}}"}'></textarea>
+        </div>
+        <div class="mint-row">
+          <label class="mint-label">Image URL path in response</label>
+          <input id="ai-response-path" class="input" type="text" placeholder="data[0].url">
+        </div>
+        <div class="preview-actions">
+          <button id="ai-save" class="btn btn-ghost">💾 Save config</button>
+        </div>
+        <p class="muted" style="font-size:11px; margin-top:10px">Tip: the endpoint must allow browser CORS. OpenAI does. If yours doesn't, put a small proxy in front of it.</p>
+      </div>
+      <div class="ai-studio">
+        <h3 class="panel-title">Generate &amp; Animate</h3>
+        <div class="mint-row">
+          <label class="mint-label">Artwork prompt</label>
+          <textarea id="ai-prompt" class="input" rows="3" placeholder="A glossy royal crown jewel on deep velvet, golden sparkles, premium collectible render, centered, dark background"></textarea>
+        </div>
+        <div class="ai-controls">
+          <label>Motion
+            <select id="ai-motion" class="input input-sm">
+              <option value="float">Float</option>
+              <option value="pulse">Pulse</option>
+              <option value="shimmer">Shimmer</option>
+              <option value="orbit">Orbit</option>
+              <option value="zoom">Slow Zoom</option>
+            </select>
+          </label>
+          <label>Intensity
+            <select id="ai-intensity" class="input input-sm">
+              <option value="0.6">Subtle</option>
+              <option value="1" selected>Normal</option>
+              <option value="1.6">Strong</option>
+            </select>
+          </label>
+          <label>Glow
+            <select id="ai-glow" class="input input-sm">
+              <option value="0">Off</option>
+              <option value="1" selected>On</option>
+            </select>
+          </label>
+        </div>
+        <div class="preview-actions">
+          <button id="ai-generate" class="btn btn-primary">✦ Generate Image</button>
+          <button id="ai-animate" class="btn btn-mint">🎬 Animate → GIF</button>
+        </div>
+        <div class="ai-preview-wrap"><img id="ai-preview" alt="AI artwork preview"></div>
+        <div id="ai-status" class="mint-status"></div>
+        <p class="muted" style="font-size:12px">When the GIF is ready, open the Forge tab and hit MINT — the AI artwork is used automatically and its prompt becomes the NFT name.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GUIDE TAB ============ -->
+  <section id="tab-help" class="tabpane">
+    <div class="guide">
+      <h2>How it works</h2>
+      <div class="guide-card">
+        <h3>1 · Connect a wallet</h3>
+        <p>Tap <b>Select wallet</b> (top right). Tonkeeper, Telegram Wallet, MyTonWallet and any TON Connect 2 wallet work. On desktop you can scan a QR with your phone wallet.</p>
+      </div>
+      <div class="guide-card">
+        <h3>2 · Forge art</h3>
+        <p>Every reroll generates a unique animated pixel piece from 5 traits — symbol, backdrop, palette, animation and effect. Lock traits you love, reroll the rest. Rarity is computed from trait weights: Common → Rare → Epic → Legendary.</p>
+      </div>
+      <div class="guide-card">
+        <h3>3 · Mint (the cheap part)</h3>
+        <p>Your first mint deploys a real TEP-62 NFT collection contract (one-time ~0.1 TON). Every NFT after that is a single message to that collection: <b>~0.055 TON all-in</b> — gas plus a small storage reserve that the chain mostly refunds. No platform fee. Ever.</p>
+        <p>The animated GIF and its metadata JSON are hosted on this app's own Cloudflare Worker with KV storage (free tier, no API keys), so your NFT is fully viewable on getgems.io and explorers.</p>
+      </div>
+      <div class="guide-card">
+        <h3>4 · Trade on getgems</h3>
+        <p>Because the contracts are the exact standards getgems uses, minted NFTs appear on getgems.io, tonviewer and tonscan automatically. List them, sell them, transfer them — all standard.</p>
+      </div>
+      <div class="guide-card warn">
+        <h3>⚠ Testnet now</h3>
+        <p>The app targets <b>TON testnet</b>. Get free testnet TON at <b>t.me/testgiver_ton_bot</b>. When you're ready for mainnet, the network switch is a single config change (see README in the repo).</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <span>Built on TON · TEP-62/64 standards · gas-only minting</span>
+</footer>
+
+<div id="toast-zone"></div>
+<script src="app.js"></script>
+</body>
+</html>
